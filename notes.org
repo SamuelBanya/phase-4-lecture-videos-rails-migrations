@@ -1,0 +1,340 @@
+* Notes
+<2022-10-19 Wed 18:08>: Migrations are like a version control system for our database that allows us to create and alter a project's database.
+
+These are the actions that can be done via a 'migration':
+- Create tables or columns --> C
+- Read tables or columns --> R
+- Update tables or columns --> U
+- Delete tables or columns --> D
+
+Migrations can be found in the 'app/db/migrate' folder of a given Rails project.
+
+Name conventions for creating a new table via a 'migration':
+- Use the word, 'create', in the file name
+
+Name conventions for updating a new table via a 'migration':
+- Use the word, 'change', in the filename
+
+Related 'rails g migration' command I used to create a related migration:
+
+NOTE: All columns in a table are default to using the 'string' data type, so instead of having to use 'name:string' each time, it is automatically assumed by default that they are of type 'string':
+#+begin_src bash
+rails g migration CreatePets name breed --no-test-framework
+#+end_src
+
+Related output:
+NOTE: The file was timestamped to ensure that the migration will run in order:
+#+begin_src bash
+samuelbanya@Samuels-MBP ~/hub/Development/code/phase-4/phase-4-lecture-videos-rails-migrations/pet-shop $ rails g migration CreatePets name breed --no-test-framework
+
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x86-mswin32, x64-mingw32, java. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+      invoke  active_record
+   identical    db/migrate/20221019225337_create_pets.rb
+#+end_src
+
+I then ran the 'rails db:migrate' command to perform the necessary migration:
+#+begin_src bash
+samuelbanya@Samuels-MBP ~/hub/Development/code/phase-4/phase-4-lecture-videos-rails-migrations/pet-shop $ rails db:migrate
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x86-mswin32, x64-mingw32, java. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+
+== 20221019225337 CreatePets: migrating =======================================
+-- create_table(:pets)
+   -> 0.0017s
+== 20221019225337 CreatePets: migrated (0.0017s) ==============================
+
+== 20221019230631 CreateShops: migrating ======================================
+-- create_table(:shops)
+   -> 0.0016s
+== 20221019230631 CreateShops: migrated (0.0017s) =============================
+#+end_src
+
+This resulted in the following 'schema' file being created within the 'app/db/schema.rb' file:
+#+begin_src ruby
+# This file is auto-generated from the current state of the database. Instead
+# of editing this file, please use the migrations feature of Active Record to
+# incrementally modify your database, and then regenerate this schema definition.
+#
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
+#
+# It's strongly recommended that you check this file into your version control system.
+
+ActiveRecord::Schema[7.0].define(version: 2022_10_19_230631) do
+  create_table "pets", force: :cascade do |t|
+    t.string "name"
+    t.string "breed"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "shops", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+end
+#+end_src
+
+Name conventions for creating a 'migration' that adds a new column to an existing table includes the 'Add' prefix to the name of the migration itself:
+#+begin_src bash
+samuelbanya@Samuels-MBP ~/hub/Development/code/phase-4/phase-4-lecture-videos-rails-migrations/pet-shop $ rails g migration AddAgeToPets --no-test-framework
+
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x86-mswin32, x64-mingw32, java. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+      invoke  active_record
+      create    db/migrate/20221019231948_add_age_to_pets.rb
+#+end_src
+
+This resulted in the 'app/db/migrate/20221019234457_add_age_to_pets.rb' file being created with the following contents:
+#+begin_src ruby
+class AddAgeToPets < ActiveRecord::Migration[7.0]
+  def change
+  end
+end
+#+end_src
+
+NOTE: It is up to you to then make the necessary changes by using just the 'Add' prefix to the file name as Rails is expecting you to be able to utilize related methods accordingly.
+With this in mind, I made the following revisions to add a new column which requires three arguments to the 'add_column' method which includes the 'table name', 'column name', and the column's 'data type':
+#+begin_src ruby
+class AddAgeToPets < ActiveRecord::Migration[7.0]
+  def change
+    add_column :pets, :age, :integer
+  end
+end
+#+end_src
+
+I then ran the related migration with the 'rails db:migrate' command accordingly:
+#+begin_src bash
+samuelbanya@Samuels-MBP ~/hub/Development/code/phase-4/phase-4-lecture-videos-rails-migrations/pet-shop $ rails db:migrate
+
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x86-mswin32, x64-mingw32, java. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+== 20221019231948 AddAgeToPets: migrating =====================================
+-- add_column(:pets, :age, :integer)
+   -> 0.0022s
+== 20221019231948 AddAgeToPets: migrated (0.0023s) ============================
+#+end_src
+
+This updated the 'app/db/schema.rb' schema file with the following contents:
+#+begin_src ruby
+# This file is auto-generated from the current state of the database. Instead
+# of editing this file, please use the migrations feature of Active Record to
+# incrementally modify your database, and then regenerate this schema definition.
+#
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
+#
+# It's strongly recommended that you check this file into your version control system.
+
+ActiveRecord::Schema[7.0].define(version: 2022_10_19_231948) do
+  create_table "pets", force: :cascade do |t|
+    t.string "name"
+    t.string "breed"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "age"
+  end
+
+  create_table "shops", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+end
+#+end_src
+
+I then created another migration to change the 'age' column in the 'Pets' model to instead be of 'string' type:
+#+begin_src bash
+rails g migration ChangeAgeInPets --no-test-framework
+#+end_src
+
+Related output:
+#+begin_src bash
+samuelbanya@Samuels-MBP ~/hub/Development/code/phase-4/phase-4-lecture-videos-rails-migrations/pet-shop $ rails g migration ChangeAgeInPets --no-test-framework
+
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x86-mswin32, x64-mingw32, java. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+      invoke  active_record
+      create    db/migrate/20221019232637_change_age_in_pets.rb
+#+end_src
+
+I then revised the 'app/db/migrate/20221019234542_change_age_in_pets.rb' migration file with the following contents as I passed in 3 parameter values to the 'change_column' method accordingly:
+#+begin_src ruby
+class ChangeAgeInPets < ActiveRecord::Migration[7.0]
+  def change
+    change_column :pets, :age, :string
+  end
+end
+#+end_src
+
+I then ran the 'rails db:migrate' migration command again:
+#+begin_src bash
+samuelbanya@Samuels-MBP ~/hub/Development/code/phase-4/phase-4-lecture-videos-rails-migrations/pet-shop $ rails db:migrate
+
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x86-mswin32, x64-mingw32, java. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+== 20221019232637 ChangeAgeInPets: migrating ==================================
+-- change_column(:pets, :age, :string)
+   -> 0.0147s
+== 20221019232637 ChangeAgeInPets: migrated (0.0148s) =========================
+#+end_src
+
+I then confirmed the data type change since the 'age' column's datatype changed from 'integer' to 'string':
+#+begin_src ruby
+# This file is auto-generated from the current state of the database. Instead
+# of editing this file, please use the migrations feature of Active Record to
+# incrementally modify your database, and then regenerate this schema definition.
+#
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
+#
+# It's strongly recommended that you check this file into your version control system.
+
+ActiveRecord::Schema[7.0].define(version: 2022_10_19_232637) do
+  create_table "pets", force: :cascade do |t|
+    t.string "name"
+    t.string "breed"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "age"
+  end
+
+  create_table "shops", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+end
+#+end_src
+
+Name conventions for removing a column requires the 'Remove' prefix to the migration's name itself.
+
+With this in mind, I then used the following command to create a new migration to remove the 'age' column with the 'rails g migration' command accordingly:
+#+begin_src ruby
+samuelbanya@Samuels-MBP ~/hub/Development/code/phase-4/phase-4-lecture-videos-rails-migrations/pet-shop $ rails g migration RemoveAge --no-test-framework
+
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x86-mswin32, x64-mingw32, java. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+      invoke  active_record
+      create    db/migrate/20221019233119_remove_age.rb
+#+end_src
+
+I then edited the related 'app/db/migrate/20221019234626_remove_age.rb' migration file with the following contents for the 'remove_column' method since it only needed two parameter values, which included the 'name of the table' and the 'name of the column':
+#+begin_src
+class RemoveAge < ActiveRecord::Migration[7.0]
+  def change
+    remove_column :pets, :age
+  end
+end
+#+end_src
+
+I then ran the 'rails db:migrate' command again:
+#+begin_src bash
+samuelbanya@Samuels-MBP ~/hub/Development/code/phase-4/phase-4-lecture-videos-rails-migrations/pet-shop $ rails db:migrate
+
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x86-mswin32, x64-mingw32, java. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+== 20221019233119 RemoveAge: migrating ========================================
+-- remove_column(:pets, :age)
+   -> 0.0076s
+== 20221019233119 RemoveAge: migrated (0.0076s) ===============================
+#+end_src
+
+I then checked the related 'app/db/schema' file accordingly to ensure that the 'age' column was removed:
+#+begin_src ruby
+# This file is auto-generated from the current state of the database. Instead
+# of editing this file, please use the migrations feature of Active Record to
+# incrementally modify your database, and then regenerate this schema definition.
+#
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
+#
+# It's strongly recommended that you check this file into your version control system.
+
+ActiveRecord::Schema[7.0].define(version: 2022_10_19_233119) do
+  create_table "pets", force: :cascade do |t|
+    t.string "name"
+    t.string "breed"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "shops", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+end
+#+end_src
+
+I then created another migration called 'CreateShops' to demonstrate the 'rollback' feature:
+#+begin_src ruby
+samuelbanya@Samuels-MBP ~/hub/Development/code/phase-4/phase-4-lecture-videos-rails-migrations/pet-shop $ rails g migration CreateShops --no-test-framework
+
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x86-mswin32, x64-mingw32, java. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+      invoke  active_record
+   identical    db/migrate/20221019230631_create_shops.rb
+#+end_src
+
+I then modified the contents of the 'app/db/migrate/20221019234711_create_shops.rb' file to have the 'name' column with the 'string' data type since I know we were going to reverse it via a 'rollback' action later on:
+#+begin_src ruby
+class CreateShops < ActiveRecord::Migration[7.0]
+  def change
+    create_table :shops do |t|
+      t.string :name
+      t.timestamps
+    end
+  end
+end
+#+end_src
+
+I then created the related migration with the 'rails db:migrate' command:
+#+begin_src bash
+samuelbanya@Samuels-MBP ~/hub/Development/code/phase-4/phase-4-lecture-videos-rails-migrations/pet-shop $ rails db:migrate
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x86-mswin32, x64-mingw32, java. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+== 20221019234711 CreateShops: migrating ======================================
+-- create_table(:shops)
+   -> 0.0021s
+== 20221019234711 CreateShops: migrated (0.0022s) =============================
+#+end_src
+
+I then rollbacked the changes with the 'rails db:rollback' command accordingly to undo the migration:
+#+begin_src bash
+samuelbanya@Samuels-MBP ~/hub/Development/code/phase-4/phase-4-lecture-videos-rails-migrations/pet-shop $ rails db:rollback
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x86-mswin32, x64-mingw32, java. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+== 20221019234711 CreateShops: reverting ======================================
+-- drop_table(:shops)
+   -> 0.0026s
+== 20221019234711 CreateShops: reverted (0.0132s) =============================
+#+end_src
+
+This resulted in the following changes in the 'app/db/schema.rb' file being changed to acknowledge the fact that it no longer contains a 'shops' table hence only the 'create_table "pets"' section is the only section that has the creation of a table present:
+#+begin_src ruby
+# This file is auto-generated from the current state of the database. Instead
+# of editing this file, please use the migrations feature of Active Record to
+# incrementally modify your database, and then regenerate this schema definition.
+#
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
+#
+# It's strongly recommended that you check this file into your version control system.
+
+ActiveRecord::Schema[7.0].define(version: 2022_10_19_234626) do
+  create_table "pets", force: :cascade do |t|
+    t.string "name"
+    t.string "breed"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+end
+#+end_src
